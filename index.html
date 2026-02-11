@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Be My Valentine 💖</title>
+
+<style>
+  body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+
+  .container {
+    position: relative;
+    width: 320px;
+    height: 220px;
+  }
+
+  button {
+    padding: 14px 24px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  #yes {
+    background: #ff2e63;
+    color: white;
+  }
+
+  #no {
+    position: absolute;
+    background: #444;
+    color: white;
+  }
+
+  #message {
+    display: none;
+    font-size: 1.8rem;
+  }
+
+  canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+
+<body>
+
+<h1 id="title">Will you be my Valentine? 💘</h1>
+
+<div class="container" id="buttons">
+  <button id="yes">YES 💖</button>
+  <button id="no">NO 💔</button>
+</div>
+
+<div id="message">YAYYY 💕😍<br>Best decision ever, I love you 💘</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+  const noBtn = document.getElementById("no");
+  const yesBtn = document.getElementById("yes");
+  const buttons = document.getElementById("buttons");
+  const message = document.getElementById("message");
+
+  let scale = 1;
+
+  function moveNo() {
+    const x = Math.random() * 220;
+    const y = Math.random() * 150;
+    scale *= 0.85;
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+    noBtn.style.transform = `scale(${scale})`;
+  }
+
+  noBtn.addEventListener("mouseover", moveNo);
+  noBtn.addEventListener("click", moveNo);
+
+  // 🎉 CONFETTI SYSTEM
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  let particles = [];
+  let looping = false;
+
+  function burst(x, y) {
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: Math.random() * -10 - 2,
+        size: Math.random() * 6 + 4,
+        gravity: 0.4,
+        color: `hsl(${Math.random() * 360}, 100%, 70%)`
+      });
+    }
+  }
+
+  function loopDrop() {
+    if (!looping) return;
+    burst(Math.random() * canvas.width, -10);
+    setTimeout(loopDrop, 400);
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach((p, i) => {
+      p.vy += p.gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+
+      if (p.y > canvas.height) particles.splice(i, 1);
+    });
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  yesBtn.onclick = () => {
+    const rect = yesBtn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    buttons.style.display = "none";
+    message.style.display = "block";
+
+    burst(x, y);       // 💥 burst from YES
+    looping = true;    // 🔁 start loop
+    loopDrop();
+  };
+</script>
+
+</body>
+</html>
